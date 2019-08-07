@@ -22,15 +22,15 @@ div.root {
   flex: 0 0 auto;
   margin-right: 1.5rem !important;
   margin-top: 1.5rem !important;
-  height: 300px;
-  width: 200px;
+  max-height: 300px;
+  max-width: 200px;
   color: "#212529";
   padding: "5px";
 }
 
 .profiles > img {
-  height: 200px;
-  width: 200px;
+  max-height: 200px;
+  max-width: 200px;
 }
 
 .profile {
@@ -38,11 +38,11 @@ div.root {
   margin-right: 1.5rem !important;
   margin-top: 1.5rem !important;
   /*height: 300px;*/
-  width: 350px;
+  max-width: 350px;
   color: "#212529";
   padding: "5px";
 }
 .profile > img {
-  height: 350px;
-  width: 350px;
+  /*max-height: 350px;
+  max-width: 350px;*/
 }

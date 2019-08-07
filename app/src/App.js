@@ -1,9 +1,9 @@
-import React, {Component} from "react";
-import axios from 'axios';
+import React, { Component } from "react";
+import axios from "axios";
 import "./App.css";
 import NavBar from "./NavBar";
-import { Container, Row, Col } from "shards-react";
-import UserCard, {UserCards} from './UserCard'
+import { Container, Row, Col, Tooltip } from "shards-react";
+import UserCard, { UserCards } from "./UserCard";
 
 class App extends Component {
   constructor() {
@@ -12,77 +12,106 @@ class App extends Component {
       user: [],
       friendsLoaded: false,
       friendData: [],
-      profiles: []
+      profiles: [],
+      open: false
     };
   }
 
-   componentDidMount() {
+  componentDidMount() {
     axios
-    .get("https://api.github.com/users/gaearon")
-    .then(data => {
-      const user = data.data;
-      console.log("1!");
-      this.setState({
-        user: user
-      })
-      return { user };
-    })
-    .then(data => {
-      console.log("2!");
-      const user = data.user;
-      const profile = user.login;
-      const friends = axios
-        .get(`https://api.github.com/users/${profile}/followers`)
-        .then(friends => {
-          const friendData = friends.data;
-          this.setState({
-            friendData: friendData
-          })
-          friendData.forEach(friend => {
-            const name = friend.login;
-            const profile = axios
-              .get(`https://api.github.com/users/${name}`)
-              .then(profile => {
-                const user = profile.data;
-                this.setState({
-                  profiles: [...this.state.profiles,user],
-                  friendsLoaded: true
-                })
-
-              });
-          });
+      .get("https://api.github.com/users/gaearon")
+      .then(data => {
+        const user = data.data;
+        this.setState({
+          user: user
         });
-    })
-    .catch(error => {
-      console.log(error);
-    });
-};
+        return { user };
+      })
+      .then(data => {
+        console.log("2!");
+        const user = data.user;
+        const profile = user.login;
+        const friends = axios
+          .get(`https://api.github.com/users/${profile}/followers`)
+          .then(friends => {
+            const friendData = friends.data;
+            this.setState({
+              friendData: friendData
+            });
+            friendData.forEach(friend => {
+              const name = friend.login;
+              const profile = axios
+                .get(`https://api.github.com/users/${name}`)
+                .then(profile => {
+                  const user = profile.data;
+                  const userT = ({
+                    ...user,
+                    open:false
+                  })
+                  this.setState({
+                    profiles: [...this.state.profiles, userT],
+                    friendsLoaded: true
+                  });
 
+                });
+            });
+          });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
 
-    state = { activeItem: 'home' }
-    handleItemClick = (e, { name }) => this.setState({ activeItem: name })
- render() {
-    
-    return (
-  
-    <div className="App">
-      <header className="App-header"><h1>Github User Profile</h1></header>
-      <Container className="">
-        <Row>
-          
-          <UserCard user={this.state.user} className='profile'/>
-
-        </Row>
-        <Row style={{alignItems: 'center'}}>
-          
-          {this.state.friendsLoaded &&
-            this.state.profiles.map(user=><UserCards user={user} key={user.id}className='profiles'/>)
+// componentDidUpdate(id) {
+//   this.toggle(id)
+// }
+  toggle = id => {
+    this.setState({
+      profiles: this.state.profiles.map(profile => {
+        if (profile.id === id) {
+          return {
+            ...profile,
+            open: true
+          };}  else {
+            return profile
           }
-          
-        </Row>        
-      </Container>
-    </div>
-  );
+        })
+      })
+      
+    };
+  
+
+  render() {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <h1>Github Profile</h1>
+        </header>
+        <Container className="">
+          <Row>
+            <UserCard user={this.state.user} className="profile" />
+          </Row>
+          <header className="App-header">
+            <h1>Github Friends</h1>
+          </header>
+          <Row style={{ alignItems: "center" }}>
+            {this.state.friendsLoaded &&
+              console.log(this.state.profiles) || this.state.profiles.map(user => (
+                
+                  <UserCards user={user} key={user.id} className="profiles" />
+                  // <Tooltip
+                  //   open={this.state.open}
+                  //   target={`#li-${user.id}`}
+                  //   toggle={this.toggle(user.id)}
+                  // >
+                  //   {user.login}
+                  // </Tooltip>
+                
+              ))}
+          </Row>
+        </Container>
+      </div>
+    );
   }
 }
 
